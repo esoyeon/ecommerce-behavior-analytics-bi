@@ -1,0 +1,29 @@
+version: 2
+
+sources:
+  - name: staging
+    schema: staging
+    tables:
+      - name: stg_events
+        description: "Raw events loaded from Parquet files"
+        columns:
+          - name: event_timestamp
+            description: "Timestamp of the event (UTC)"
+          - name: event_date
+            description: "Date of the event"
+          - name: event_type
+            description: "Type of event (view/cart/purchase)"
+          - name: product_id
+            description: "Product identifier"
+          - name: category_id
+            description: "Category identifier"
+          - name: category_code
+            description: "Hierarchical category code (e.g., electronics.smartphone)"
+          - name: brand
+            description: "Product brand"
+          - name: price
+            description: "Product price at event time"
+          - name: user_id
+            description: "User identifier"
+          - name: user_session
+            description: "Session identifier"

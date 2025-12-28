@@ -1,0 +1,110 @@
+version: 2
+
+models:
+  # Staging
+  - name: stg_events
+    description: "Cleaned and standardized events with category hierarchy"
+    columns:
+      - name: event_timestamp
+        tests:
+          - not_null
+      - name: event_date
+        tests:
+          - not_null
+      - name: event_type
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["view", "cart", "purchase"]
+      - name: user_id
+        tests:
+          - not_null
+      - name: user_session
+        tests:
+          - not_null
+
+  # Facts
+  - name: fact_events
+    description: "Analysis-ready events with user segmentation and price buckets"
+    columns:
+      - name: event_date
+        tests:
+          - not_null
+      - name: event_type
+        tests:
+          - not_null
+      - name: user_id
+        tests:
+          - not_null
+      - name: user_type
+        tests:
+          - accepted_values:
+              values: ["new", "returning"]
+      - name: price_bucket
+        tests:
+          - accepted_values:
+              values: ["unknown", "0-10", "10-50", "50-100", "100-500", "500+"]
+
+  - name: fact_sessions
+    description: "Session-level aggregations with funnel metrics"
+    columns:
+      - name: user_session
+        tests:
+          - unique
+          - not_null
+      - name: user_id
+        tests:
+          - not_null
+      - name: session_date
+        tests:
+          - not_null
+      - name: max_funnel_stage
+        tests:
+          - accepted_values:
+              values: [0, 1, 2, 3]
+
+  # Marts
+  - name: mart_funnel_daily
+    description: "Daily funnel metrics by user type, price bucket, and category"
+    columns:
+      - name: event_date
+        tests:
+          - not_null
+      - name: view_users
+        description: "Count of unique users who viewed products"
+      - name: cart_users
+        description: "Count of unique users who added to cart"
+      - name: purchase_users
+        description: "Count of unique users who purchased"
+      - name: cart_rate_pct
+        description: "View to cart conversion rate (%)"
+      - name: purchase_rate_pct
+        description: "View to purchase conversion rate (%)"
+
+  - name: mart_retention_cohort_weekly
+    description: "Weekly cohort retention analysis"
+    columns:
+      - name: cohort_week
+        tests:
+          - not_null
+      - name: week_number
+        tests:
+          - not_null
+      - name: cohort_size
+        description: "Number of users in the cohort"
+      - name: retention_rate_pct
+        description: "Percentage of cohort users active in week N"
+
+  - name: mart_category_growth_weekly
+    description: "Category performance and week-over-week growth"
+    columns:
+      - name: event_week
+        tests:
+          - not_null
+      - name: category_l1
+        tests:
+          - not_null
+      - name: revenue_wow_growth_pct
+        description: "Week-over-week revenue growth percentage"
+      - name: revenue_share_pct
+        description: "Category's share of total weekly revenue"
